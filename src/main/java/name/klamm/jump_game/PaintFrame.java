@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class PaintFrame extends JFrame {
+    // TODO: as OpenGL coords, matrix MVP
     private final double X_LEFT = 0.0;
     private final double X_RIGHT = 1.0;
     private final double Y_BOTTOM = 0.0;
@@ -23,6 +24,7 @@ public class PaintFrame extends JFrame {
     
     private BufferedImage image;
     
+    // TODO: anti flikcking
     //private final BufferStrategy bufferStrategy = getBufferStrategy();
     
     private Rect2d rect2d = new Rect2d(new Point2d(100, 100), new Point2d(200, 200));
