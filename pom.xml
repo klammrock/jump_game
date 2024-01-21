@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>name.klamm</groupId>
-    <artifactId>maven_window</artifactId>
+    <artifactId>jump_game</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     

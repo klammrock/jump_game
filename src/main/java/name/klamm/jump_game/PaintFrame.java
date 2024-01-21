@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
@@ -22,6 +23,12 @@ public class PaintFrame extends JFrame {
     
     private BufferedImage image;
     
+    //private final BufferStrategy bufferStrategy = getBufferStrategy();
+    
+    private Rect2d rect2d = new Rect2d(new Point2d(100, 100), new Point2d(200, 200));
+    private int rectXOffset = 0;
+    private int rectYOffset = 0;
+    
     public PaintFrame() {
         setTitle("Paint");
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -29,6 +36,9 @@ public class PaintFrame extends JFrame {
         // to center of screen
         setLocationRelativeTo(null);
         setResizable(false);
+        
+        //setIgnoreRepaint(true);
+        //createBufferStrategy(2);
         
         addKeyListener(new KeyAdapter() {
             @Override
@@ -49,9 +59,14 @@ public class PaintFrame extends JFrame {
     
     private void generateImage() {
         var g2 = image.createGraphics();
+        // TODO: check
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        
+        g2.setColor(Color.red);
+        g2.drawRect(rect2d.lowX() + rectXOffset, rect2d.lowY() + rectYOffset,
+                rect2d.width(), rect2d.height());
     }
     
     @Override
@@ -72,13 +87,18 @@ public class PaintFrame extends JFrame {
             default -> {
             }
         }
+        
+        generateImage();
+        repaint();
+        //bufferStrategy.show();
     }
     
     private void moveX() {
-        
+        rectXOffset++;
+
     }
     
     private void moveY() {
-        
+        rectYOffset++;
     }
 }
