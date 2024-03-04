@@ -6,12 +6,15 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_A;
+import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOWN;
 import static java.awt.event.KeyEvent.VK_LEFT;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_RIGHT;
 import static java.awt.event.KeyEvent.VK_SPACE;
 import static java.awt.event.KeyEvent.VK_UP;
+import static java.awt.event.KeyEvent.VK_W;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
@@ -45,7 +48,7 @@ public class PaintFrame extends JFrame {
         return percent * (toMax - toMin) + toMin;
     }
     
-    private Point2d viewCoordToPixel(Point2d viewCoord) {
+    private Point2d viewCoordToPixel(Point2d viewCoord, Point2d transform) {
         double x = fit(VIEW_LEFT, VIEW_RIGHT, 0, SCREEN_WIDTH, viewCoord.getX());
         double y = fit(VIEW_BOTTOM, VIEW_TOP, 0, SCREEN_HEIGHT, viewCoord.getY());
         
@@ -56,6 +59,10 @@ public class PaintFrame extends JFrame {
         x -= cameraTransform.getX();
         y -= cameraTransform.getY();
         
+        // model
+        x += transform.getX();
+        y += transform.getY();
+        
         var result = new Point2d(x, y);
         
         System.out.println("from " + viewCoord + ", to " + result);
@@ -63,11 +70,16 @@ public class PaintFrame extends JFrame {
         return result;
     }
     
+    private Point2d viewCoordToPixel(Point2d viewCoord) {
+        return viewCoordToPixel(viewCoord, Point2d.empty);
+    }
+    
     // camera
     private Point2d cameraTransform = Point2d.empty();
     private final int CAMERA_STEP = 10;
     
-    private final int PLAYER_STEP = 10;
+    private Point2d playerTransform = Point2d.empty();
+    private final int PLAYER_STEP = 2;
     
     private BufferedImage image;
     
@@ -78,7 +90,24 @@ public class PaintFrame extends JFrame {
     private int rectXOffset = 0;
     private int rectYOffset = 0;
     
-    private Rect2d groundRect2d = new Rect2d(new Point2d(0.25, 0.1), new Point2d(0.75, 0.2));
+    private static final double GROUND_CENTER_X = 0.5;
+    private static final double GROUND_CENTER_Y = 0.15;
+    private static final double GROUND_SIZE_X = 0.5;
+    private static final double GROUND_SIZE_Y = 0.1;
+    
+    private static final double PLATER_CENTER_X = 0.5;
+    private static final double PLATER_CENTER_Y = 0.225;
+    private static final double PLATER_SIZE = 0.05;
+
+    private Rect2d groundRect2d = new Rect2d(
+            new Point2d(GROUND_CENTER_X - GROUND_SIZE_X / 2, GROUND_CENTER_Y - GROUND_SIZE_Y / 2),
+            new Point2d(GROUND_CENTER_X + GROUND_SIZE_X / 2, GROUND_CENTER_Y + GROUND_SIZE_Y / 2)
+    );
+    
+    private Rect2d playerRect2d = new Rect2d(
+            new Point2d(PLATER_CENTER_X - PLATER_SIZE / 2, PLATER_CENTER_Y - PLATER_SIZE / 2),
+            new Point2d(PLATER_CENTER_X + PLATER_SIZE / 2, PLATER_CENTER_Y + PLATER_SIZE / 2)
+    );
     
     public PaintFrame() {
         setTitle("Paint");
@@ -124,10 +153,17 @@ public class PaintFrame extends JFrame {
         g2.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         
         drawGround(g2);
+        drawPlayer(g2);
         
 //        g2.setColor(Color.red);
 //        g2.drawRect(rect2d.lowX() + rectXOffset, rect2d.lowY() + rectYOffset,
 //                rect2d.width(), rect2d.height());
+    }
+    
+    private void drawPlayer(Graphics2D g2) {
+        g2.setColor(Color.RED);
+        
+        drawFillRect(g2, playerRect2d, playerTransform);
     }
     
     @Override
@@ -165,6 +201,10 @@ public class PaintFrame extends JFrame {
             case VK_DOWN -> cameraMoveDown();
             case VK_SPACE -> cameraReset();
             
+            case VK_A -> playerMoveLeft();
+            case VK_D -> playerMoveRight();
+            case VK_W -> playerMoveUp();
+            
             case VK_Q -> exit();
             default -> {
             }   
@@ -193,6 +233,14 @@ public class PaintFrame extends JFrame {
         
         g2.fillRect(pixelRect2d.lowX(), pixelRect2d.lowY(), pixelRect2d.width(), pixelRect2d.height());
     }
+    
+    private void drawFillRect(Graphics2D g2, Rect2d rect2d, Point2d transform) {
+        var pixelRect2d = new Rect2d(
+                viewCoordToPixel(rect2d.p1(), transform), 
+                viewCoordToPixel(rect2d.p2(), transform));
+        
+        g2.fillRect(pixelRect2d.lowX(), pixelRect2d.lowY(), pixelRect2d.width(), pixelRect2d.height());
+    }
 
     private void exit() {
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -217,5 +265,18 @@ public class PaintFrame extends JFrame {
     private void cameraReset() {
         cameraTransform.setX(0);
         cameraTransform.setY(0);
+    }
+    
+    private void playerMoveLeft() {
+        playerTransform.setX(playerTransform.getX() - PLAYER_STEP);
+    }
+    
+    private void playerMoveRight() {
+        playerTransform.setX(playerTransform.getX() + PLAYER_STEP);
+    }
+
+    private void playerMoveUp() {
+        // TODO: jump
+        playerTransform.setY(playerTransform.getY() - PLAYER_STEP);
     }
 }
