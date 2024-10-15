@@ -154,6 +154,7 @@ public class PaintFrame extends JFrame {
         
         drawGround(g2);
         drawPlayer(g2);
+        //drawKeysInfo(g2)
         
 //        g2.setColor(Color.red);
 //        g2.drawRect(rect2d.lowX() + rectXOffset, rect2d.lowY() + rectYOffset,

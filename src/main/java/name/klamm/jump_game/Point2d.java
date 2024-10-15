@@ -1,6 +1,9 @@
 package name.klamm.jump_game;
 
 public class Point2d {
+    // TODO: immutable
+    public static final Point2d empty = new Point2d(0, 0);
+    
     private double x;
     private double y;
     
